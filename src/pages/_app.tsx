@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from '../utils/wagmi';
+// import { config } from '../../lib/wagmi-config';
 import theme from '../utils/theme';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

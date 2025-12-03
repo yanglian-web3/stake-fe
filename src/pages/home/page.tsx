@@ -138,6 +138,7 @@ const Home = () => {
 
   const getStakedAmount = useCallback(async () => {
     if (address && stakeContract) {
+      console.log("stakeContract=", stakeContract)
       // const res = await stakeContract?.read.poolLength();
       const res = await stakeContract?.read.stakingBalance([Pid, address])
       setStakedAmount(formatUnits(res as bigint, 18))
