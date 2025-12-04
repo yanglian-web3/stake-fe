@@ -99,16 +99,45 @@ const Home = () => {
       setLoading(true)
       console.log('开始质押...', amount, 'ETH')
 
-      // 本地网络使用简化配置
-      const gasSettings = {
+      // 获取当前网络信息
+      const chain = await data.getChainId()
+      console.log('当前网络:', chain)
+
+      // 根据网络设置合适的 Gas Limit
+      let gasSettings: any = {
         value: parseUnits(amount, 18),
       }
 
-      // 如果是本地网络，可以设置更高的gas limit
-      const { chain } = await data.getChainId()
-      if (chain?.id === 31337 || chain?.id === 1337) {
-        gasSettings.gas = 5000000n // 本地网络可以给高一点
+      // Sepolia 网络需要更合理的 Gas 设置
+      if (chain === 11155111) { // Sepolia 网络
+        console.log('Sepolia网络，使用合理的Gas设置')
+
+        // 方法1：让钱包自动估算（推荐）
+        try {
+          const estimatedGas = await stakeContract.estimateGas.depositETH([], {
+            value: parseUnits(amount, 18)
+          })
+          console.log('估算Gas:', estimatedGas.toString())
+
+          // 添加一些缓冲（10%）
+          const buffer = estimatedGas * 110n / 100n
+          gasSettings.gas = buffer > 16777216n ? 16777216n : buffer
+
+        } catch (estimateError) {
+          console.log('Gas估算失败，使用默认值:', estimateError)
+          // Sepolia 区块限制是 16777216
+          gasSettings.gas = 10000000n // 1000万，安全的默认值
+        }
+
+      } else if (chain === 31337 || chain === 1337) { // 本地网络
+        console.log('本地网络，使用较高的Gas Limit')
+        gasSettings.gas = 5000000n // 本地可以给高一点
+      } else {
+        // 其他网络使用合理值
+        gasSettings.gas = 10000000n
       }
+
+      console.log('最终Gas设置:', gasSettings)
 
       const tx = await stakeContract.write.depositETH([], gasSettings)
       console.log('交易已发送:', tx)
@@ -119,7 +148,7 @@ const Home = () => {
       toast.success('Stake successful!')
       setLoading(false)
 
-      // 刷新余额和余额显示
+      // 刷新余额
       getStakedAmount()
       setAmount('0')
 
@@ -127,12 +156,15 @@ const Home = () => {
       setLoading(false)
       console.error('质押失败:', error)
 
-      if (error.message?.includes('user rejected')) {
-        toast.error('Transaction rejected')
+      // 改进的错误处理
+      if (error.message?.includes('transaction gas limit too high')) {
+        toast.error('Gas limit too high for network. Try with smaller amount or contact support.')
+      } else if (error.message?.includes('user rejected')) {
+        toast.error('Transaction rejected by user')
       } else if (error.message?.includes('insufficient funds')) {
         toast.error('Insufficient balance')
       } else if (error.message?.includes('gas')) {
-        toast.error('Gas estimation failed, please try again')
+        toast.error('Gas estimation failed. Please try again.')
       } else {
         toast.error('Transaction failed: ' + (error.shortMessage || error.message))
       }
