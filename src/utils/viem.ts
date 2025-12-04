@@ -11,7 +11,7 @@ const defaultClient =   createPublicClient({
 
 export const viemClients = (chaiId: number): PublicClient => {
 
-  console.log("viemClients chaiId=", chaiId)
+  // console.log("viemClients chaiId=", chaiId)
   const clients: {
     [key: number]: PublicClient
   } = {

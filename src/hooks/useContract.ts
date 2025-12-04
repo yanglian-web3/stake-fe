@@ -15,7 +15,7 @@ export function useContract<TAbi extends Abi>(
   options?: UseContractOptions,
 ) {
   const currentChainId = useChainId()
-  console.log("currentChainId=", currentChainId)
+ // console.log("currentChainId=", currentChainId)
   const chainId = options?.chainId || currentChainId
   const { data: walletClient } = useWalletClient()
 
@@ -25,7 +25,7 @@ export function useContract<TAbi extends Abi>(
     if (typeof addressOrAddressMap === 'string') address = addressOrAddressMap
     else address = addressOrAddressMap[chainId]
     if (!address) return null
-    console.log("useContract address=", address)
+   // console.log("useContract address=", address)
     try {
       return getContract({
         abi,
