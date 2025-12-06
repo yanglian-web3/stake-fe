@@ -84,6 +84,22 @@ const Home = () => {
     }
   }, [address, balance])
 
+  /**
+   * // 不同网络的 Gas Limit 上限
+         const GAS_LIMITS = {
+            1: 30000000n,       // 以太坊主网
+            11155111: 16777216n, // Sepolia（最严格！）
+            5: 30000000n,       // Goerli
+            42161: 32000000n,   // Arbitrum
+            10: 30000000n,      // Optimism
+            137: 30000000n,     // Polygon
+            56: 30000000n,      // BSC
+            43114: 8000000n,    // Avalanche（较低）
+            250: 30000000n,     // Fantom
+            31337: 30000000n,   // Hardhat（本地）
+            1337: 30000000n     // Ganache（本地）
+          }
+   */
   const handleStake = async () => {
     if (!stakeContract || !data || !amount || parseFloat(amount) <= 0) {
       toast.error('Please enter a valid amount')
